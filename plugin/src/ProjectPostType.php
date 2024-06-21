@@ -74,7 +74,7 @@ class ProjectPostType
         );
         $post = get_post();
         echo $twig->render(
-            'projects-meta-box.html.twig',
+            'project-meta-box.html.twig',
             [
                 'post' => $post,
                 'meta' => get_post_meta($post->ID),
