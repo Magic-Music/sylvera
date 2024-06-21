@@ -1,0 +1,21 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Sylvera\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-0": {
+            "Sylvera\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": "8.3.*",
+        "twig/twig": "^3.0"
+    },
+    "require-dev": {
+        "osteel/openapi-httpfoundation-testing": "^0.11.0",
+        "phpunit/phpunit": "^11.1",
+        "brain/monkey": "^2.6"
+    }
+}

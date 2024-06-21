@@ -1,0 +1,48 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Sylvera
+paths:
+  /wp-json/sylvera/v1/projects:
+    get:
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+  /wp-json/sylvera/v1/projects/{id}:
+    get:
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+components:
+  schemas:
+    Project:
+      type: object
+      required:
+        - ID
+        - post_title
+        - description
+        - founded
+      additionalProperties: false
+      properties:
+        ID:
+          type: integer
+          format: int64
+        post_title:
+          type: string
+          nullable: false
+        description:
+          type: string
+          nullable: false
+        founded:
+          type: integer
+          nullable: false

@@ -1,0 +1,8 @@
+textarea#project_description {
+    width: 100%;
+    min-height: 80px;
+}
+
+input#project_founded {
+    width: 100%;
+}
