@@ -101,24 +101,50 @@ class ProjectPostType
     {
         register_rest_route(
             'sylvera/v1',
-            '/projects/(?P<id>\d+)',
+            '/projects(?:/(?P<id>\d+))?',
             [
                 'methods' => 'GET',
+                'args' => [
+                    'id' => [
+                        'required' => false,
+                    ],
+                ],
                 'callback' => function ($request) {
-                    $post = get_post($request['id']);
-                    $post->meta = get_post_meta($post->ID);
+                    if ($request['id'] ?? null) {
+                        return $this->getPostResponse((int)$request['id']);
+                    }
 
-                    $response = [
-                        'id' => $post->ID,
-                        'post_title' => $post->post_title,
-                        'description' => $post->meta['project_description'][0],
-                        'founded' => (int)$post->meta['project_founded'][0],
-                    ];
+                    $response = [];
+                    foreach($this->getAllPosts() as $post) {
+                        $response[] = $this->getPostResponse($post->ID);
+                    }
 
                     return $response;
                 },
             ]
         );
+    }
+
+    private function getPostResponse(int $id): array
+    {
+        $post = get_post($id);
+        $post->meta = get_post_meta($post->ID);
+
+        return [
+            'id' => $post->ID,
+            'post_title' => $post->post_title,
+            'description' => $post->meta['project_description'][0],
+            'founded' => (int)$post->meta['project_founded'][0],
+        ];
+    }
+
+    private function getAllPosts(): array
+    {
+        return get_posts([
+            'numberposts' => -1,
+            'post_status' => 'any',
+            'post_type' => get_post_types(),
+        ]);
     }
 
     public function enqueueScripts(): void
