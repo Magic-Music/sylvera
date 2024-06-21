@@ -108,7 +108,14 @@ class ProjectPostType
                     $post = get_post($request['id']);
                     $post->meta = get_post_meta($post->ID);
 
-                    return $post;
+                    $response = [
+                        'id' => $post->ID,
+                        'post_title' => $post->post_title,
+                        'description' => $post->meta['project_description'][0],
+                        'founded' => (int)$post->meta['project_founded'][0],
+                    ];
+
+                    return $response;
                 },
             ]
         );
