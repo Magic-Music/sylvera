@@ -8,6 +8,13 @@ use PHPUnit\Framework\TestCase;
 
 use function Brain\Monkey\Functions\expect;
 
+/**
+ * Due to the scope of the methods within the ProjectPostType class being hidden from
+ * public scope, in this current format, testing is not straightforward. Following
+ * refactoring (for example) the api responses into a separate class with a public
+ * interface, this would enable testing to be performed on the output of that class
+ */
+
 #[CoversClass(ProjectPostType::class)]
 class ProjectPostTypeTest extends TestCase
 {

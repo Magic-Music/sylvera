@@ -7,6 +7,11 @@ use Twig\Loader\FilesystemLoader;
 
 class ProjectPostType
 {
+    /**
+     * TODO: Refactor config to an external file
+     * This would allow for future multiple related
+     * configurations to be kept together in a single file
+     */
     private const CONFIG = [
         'label' => 'Project',
         'supports' => [
@@ -26,7 +31,36 @@ class ProjectPostType
         ],
     ];
 
+    /**
+     * Moved action registration to separate method for a cleaner constructor
+     */
     public function __construct()
+    {
+        $this->registerActions();
+    }
+
+    public function enqueueScripts(): void
+    {
+        wp_enqueue_style(
+            'projects-css',
+            plugins_url(
+                '/css/projects.css',
+                __DIR__
+            )
+        );
+        wp_enqueue_script(
+            'projects-js',
+            plugins_url(
+                '/js/projects.js',
+                __DIR__
+            )
+        );
+    }
+
+    /**
+     * Extracted from the constructor
+     */
+    private function registerActions(): void
     {
         add_action(
             'init',
@@ -50,12 +84,18 @@ class ProjectPostType
         );
     }
 
-    public function registerPostType(): void
+    /**
+     * The following methods have been made private -
+     * they do not need to be publicly visible
+     *
+     * These two methods could be moved to a separate class
+     */
+    private function registerPostType(): void
     {
         register_post_type(strtolower(self::CONFIG['label']), self::CONFIG);
     }
 
-    public function registerMetaBox(): void
+    private function registerMetaBox(): void
     {
         add_meta_box(
             'project_meta',
@@ -65,7 +105,7 @@ class ProjectPostType
         );
     }
 
-    public function renderMetaBox(): void
+    private function renderMetaBox(): void
     {
         $twig = new Environment(
             new FilesystemLoader(
@@ -74,7 +114,7 @@ class ProjectPostType
         );
         $post = get_post();
         echo $twig->render(
-            'projects-meta-box.html.twig',
+            'project-meta-box.html.twig',
             [
                 'post' => $post,
                 'meta' => get_post_meta($post->ID),
@@ -82,7 +122,7 @@ class ProjectPostType
         );
     }
 
-    public function save(): void
+    private function save(): void
     {
         $post = get_post();
         update_post_meta(
@@ -97,38 +137,60 @@ class ProjectPostType
         );
     }
 
-    public function api(): void
+    /**
+     * TODO: Move the project response methods to a separate class
+     * to adhere to SOLID Single Responsibility Principle
+     */
+    private function api(): void
     {
         register_rest_route(
             'sylvera/v1',
-            '/projects/(?P<id>\d+)',
+            '/projects(?:/(?P<id>\d+))?',
             [
                 'methods' => 'GET',
-                'callback' => function ($request) {
-                    $post = get_post($request['id']);
-                    $post->meta = get_post_meta($post->ID);
-
-                    return $post;
-                },
+                'args' => [
+                    'id' => [
+                        'required' => false,
+                    ],
+                ],
+                'callback' => fn($request) => $this->getProjectsResponseData(((int)$request['id']) ?? null),
             ]
         );
     }
 
-    public function enqueueScripts(): void
+    private function getProjectsResponseData(?int $id): array
     {
-        wp_enqueue_style(
-            'projects-css',
-            plugins_url(
-                '/css/projects.css',
-                __DIR__
-            )
-        );
-        wp_enqueue_script(
-            'projects-js',
-            plugins_url(
-                '/js/projects.js',
-                __DIR__
-            )
-        );
+        if ($id) {
+            return $this->getPostResponse($id);
+        }
+
+        $response = [];
+        foreach($this->getAllPosts() as $post) {
+            $response[] = $this->getPostResponse($post->ID);
+        }
+
+        return $response;
+    }
+
+    private function getPostResponse(int $id): array
+    {
+        $post = get_post($id);
+        $post->meta = get_post_meta($post->ID);
+
+        return [
+            'ID' => $post->ID,
+            'post_title' => $post->post_title,
+            'description' => $post->meta['project_description'][0],
+            'founded' => (int)$post->meta['project_founded'][0],
+        ];
+    }
+
+    private function getAllPosts(): array
+    {
+        return get_posts([
+            'numberposts' => -1,
+            'post_status' => 'any',
+            'post_type' => 'project',
+        ]);
     }
 }
