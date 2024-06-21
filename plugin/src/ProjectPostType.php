@@ -131,7 +131,7 @@ class ProjectPostType
         $post->meta = get_post_meta($post->ID);
 
         return [
-            'id' => $post->ID,
+            'ID' => $post->ID,
             'post_title' => $post->post_title,
             'description' => $post->meta['project_description'][0],
             'founded' => (int)$post->meta['project_founded'][0],
@@ -143,7 +143,7 @@ class ProjectPostType
         return get_posts([
             'numberposts' => -1,
             'post_status' => 'any',
-            'post_type' => get_post_types(),
+            'post_type' => 'project',
         ]);
     }
 
