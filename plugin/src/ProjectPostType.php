@@ -57,6 +57,9 @@ class ProjectPostType
         );
     }
 
+    /**
+     * Extracted from the constructor
+     */
     private function registerActions(): void
     {
         add_action(
@@ -84,6 +87,8 @@ class ProjectPostType
     /**
      * The following methods have been made private -
      * they do not need to be publicly visible
+     *
+     * These two methods could be moved to a separate class
      */
     private function registerPostType(): void
     {
@@ -132,6 +137,10 @@ class ProjectPostType
         );
     }
 
+    /**
+     * TODO: Move the project response methods to a separate class
+     * to adhere to SOLID Single Responsibility Principle
+     */
     private function api(): void
     {
         register_rest_route(
